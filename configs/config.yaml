@@ -1,0 +1,32 @@
+project_name: turbofan-rul
+subset: FD001
+random_seed: 42
+clip_rul: 125
+min_cycles_required: 30
+alert_threshold: 30
+feature_windows: [5, 10, 30]
+baseline_cycles: 10
+keep_sensors: [2, 3, 4, 7, 8, 9, 11, 12, 13, 14, 15, 17, 20, 21]
+feature_config:
+  raw_sensors: true
+  rolling_mean: true
+  rolling_std: true
+  baseline_diff: true
+  cycle_number: true
+paths:
+  raw_data_dir: data/raw
+  processed_data_dir: data/processed
+  mlruns_dir: mlruns
+  model_dir: models
+  mlflow_db: sqlite:///mlflow.db
+mlflow:
+  experiment_name: turbofan-rul-fd001
+  model_name: turbofan-rul
+  alias: champion
+train:
+  n_estimators: 300
+  max_depth: -1
+  learning_rate: 0.05
+  num_leaves: 31
+  min_child_samples: 20
+  importance_type: gain

@@ -12,6 +12,9 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PORT=8000
 
 RUN groupadd --system app && useradd --system --gid app --create-home app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local /usr/local
 COPY app ./app

@@ -67,12 +67,10 @@ def predict(payload: PredictRequest) -> PredictResponse:
 
     model = MODEL_BUNDLE.get('model')
     if model is None:
-        prediction = float(max(0.0, len(feature_matrix) * 1.5))
-    else:
-        prediction = float(model.predict(feature_matrix)[-1])
+        raise HTTPException(status_code=503, detail='The prediction model is unavailable.')
+    prediction = float(model.predict(feature_matrix)[-1])
 
     alert = bool(prediction < float(config.get('alert_threshold', 30)))
     latency_ms = round((time.perf_counter() - start) * 1000, 3)
     logger.info('request_prediction engine_id=%s cycles=%s prediction=%s latency_ms=%s', payload.engine_id, len(payload.cycles), prediction, latency_ms)
     return PredictResponse(predicted_rul=prediction, alert=alert, model_version='1')
-

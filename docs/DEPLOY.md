@@ -13,8 +13,16 @@ This project is designed for a free-tier deployment path using Docker-based host
 ## Render
 
 1. Create a new Web Service using the Dockerfile.
-2. Set the environment variable `PORT` to `8000`.
+2. Before deploying, ensure the exported model bundle is committed in `models/`; the Docker image copies this directory and does not train during its build.
 3. Push the project and confirm `/health` works.
+
+To regenerate the bundle from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m src.turbofan.train
+.\.venv\Scripts\python.exe -m src.turbofan.export
+git add models/
+```
 
 ## GHCR local run
 

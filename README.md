@@ -15,9 +15,7 @@ flowchart LR
 
 ## Current status
 
-This repository is validated locally end-to-end for the training/export/serving workflow. The project successfully trains a model on the included synthetic fallback fixture, exports the champion bundle to the model directory, and serves predictions through the FastAPI app.
-
-Real NASA FD001 data and a public cloud deployment are still external requirements; they are not present in this workspace, so the repository is confirmed as a working baseline implementation rather than a fully hosted production deployment.
+The API and Docker deployment use the exported serving bundle in `models/`. The bundle is tracked in this repository so a hosted Docker build has the model and metadata it needs at startup.
 
 ## Quickstart
 

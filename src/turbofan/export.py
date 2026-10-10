@@ -18,11 +18,21 @@ def export_champion() -> str:
     models_dir = Path(config['paths']['model_dir'])
     models_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        model_uri = f'models:/{model_name}@{alias}'
-        model = mlflow.pyfunc.load_model(model_uri=model_uri)
-    except Exception:
-        model = None
+    client = mlflow.MlflowClient()
+    registered_model = client.get_registered_model(model_name)
+    version = registered_model.aliases.get(alias)
+    if version is None:
+        ready_versions = [
+            item for item in client.search_model_versions(f"name='{model_name}'")
+            if item.status == 'READY'
+        ]
+        if not ready_versions:
+            raise RuntimeError(f"No READY versions are registered for model '{model_name}'.")
+        version = max(ready_versions, key=lambda item: int(item.version)).version
+        client.set_registered_model_alias(model_name, alias, version)
+
+    model_uri = f'models:/{model_name}/{version}'
+    model = mlflow.lightgbm.load_model(model_uri=model_uri)
 
     model_path = models_dir / 'champion_model.joblib'
     joblib.dump(model, model_path)

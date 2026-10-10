@@ -136,7 +136,19 @@ def train_and_evaluate() -> dict:
         mlflow.log_param('learning_rate', 0.05)
         mlflow.log_param('n_estimators', 300)
         mlflow.log_param('min_child_samples', 20)
-        mlflow.lightgbm.log_model(lgbm, 'model', registered_model_name=config['mlflow']['model_name'])
+        model_info = mlflow.lightgbm.log_model(
+            lgbm,
+            'model',
+            registered_model_name=config['mlflow']['model_name'],
+        )
+        version = model_info.registered_model_version
+        if version is None:
+            raise RuntimeError('MLflow did not return a registered model version.')
+        mlflow.MlflowClient().set_registered_model_alias(
+            config['mlflow']['model_name'],
+            config['mlflow']['alias'],
+            version,
+        )
 
         importance = lgbm.feature_importances_
         feature_names = feature_columns

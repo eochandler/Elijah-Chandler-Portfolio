@@ -18,3 +18,7 @@ models/*.json
 **/.ipynb_checkpoints/
 **/raw/
 **/processed/
+!models/champion_model.joblib
+!models/feature_columns.json
+!models/kept_sensors.json
+!models/config.json

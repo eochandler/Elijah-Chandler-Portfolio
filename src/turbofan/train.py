@@ -101,8 +101,7 @@ def train_and_evaluate() -> dict:
     mlflow.set_experiment(config['mlflow']['experiment_name'])
 
     commit_hash = _git_commit_hash()
-    if commit_hash:
-        mlflow.set_tag('git_commit', commit_hash)
+    run_tags = {'git_commit': commit_hash} if commit_hash else None
 
     run_metadata = {
         'config.clip_rul': config.get('clip_rul', 125),
@@ -111,7 +110,7 @@ def train_and_evaluate() -> dict:
         'data.subset': config.get('subset', 'FD001'),
     }
 
-    with mlflow.start_run(run_name='baseline'):
+    with mlflow.start_run(run_name='baseline', tags=run_tags):
         mlflow.log_params(run_metadata)
         mlflow.log_param('model', 'naive')
         mlflow.log_metric('val_rmse', rmse(y_val, naive_predict))
@@ -122,13 +121,13 @@ def train_and_evaluate() -> dict:
         ax.set_ylabel('Predicted RUL')
         _log_plot(fig, 'predicted_vs_true.png')
 
-    with mlflow.start_run(run_name='ridge'):
+    with mlflow.start_run(run_name='ridge', tags=run_tags):
         mlflow.log_params(run_metadata)
         mlflow.log_param('model', 'ridge')
         mlflow.log_metric('val_rmse', rmse(y_val, ridge_pred))
         mlflow.sklearn.log_model(ridge, 'model')
 
-    with mlflow.start_run(run_name='lightgbm'):
+    with mlflow.start_run(run_name='lightgbm', tags=run_tags):
         mlflow.log_params(run_metadata)
         mlflow.log_param('model', 'lightgbm')
         mlflow.log_metric('val_rmse', rmse(y_val, lgbm_pred))

@@ -5,6 +5,7 @@ import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 
 from src.turbofan.config import load_config
 from src.turbofan.features import feature_columns_for_config, transform_cycle_history
@@ -27,6 +28,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title='Turbofan RUL API', lifespan=lifespan)
 
 
+@app.get('/', include_in_schema=False)
+def root() -> RedirectResponse:
+    return RedirectResponse(url='/docs')
+
+
 @app.get('/health')
 def health() -> dict[str, str]:
     return {'status': 'ok'}
@@ -39,7 +45,8 @@ def model_info() -> dict[str, object]:
         'model_name': config['mlflow']['model_name'],
         'version': '1',
         'training_date': 'unknown',
-        'fd001_test_rmse': 0.0,
+        'validation_rmse': MODEL_BUNDLE.get('config', {}).get('validation_rmse'),
+        'evaluation_split': MODEL_BUNDLE.get('config', {}).get('evaluation_split'),
         'expected_input_columns': ['cycle', *[f'sensor_{sensor_id}' for sensor_id in config['keep_sensors']]],
     }
 

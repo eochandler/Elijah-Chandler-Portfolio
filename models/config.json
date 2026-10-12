@@ -1,1 +1,1 @@
-{"clip_rul": 125, "min_cycles_required": 30, "alert_threshold": 30}
+{"clip_rul": 125, "min_cycles_required": 30, "alert_threshold": 30, "validation_rmse": 10.48904894811603, "evaluation_split": "One held-out fold from 3-fold GroupKFold split by engine."}

@@ -18,6 +18,7 @@ def export_champion() -> str:
     models_dir = Path(config['paths']['model_dir'])
     models_dir.mkdir(parents=True, exist_ok=True)
 
+    mlflow.set_tracking_uri(config['paths']['mlflow_db'])
     client = mlflow.MlflowClient()
     registered_model = client.get_registered_model(model_name)
     version = registered_model.aliases.get(alias)
@@ -33,6 +34,8 @@ def export_champion() -> str:
 
     model_uri = f'models:/{model_name}/{version}'
     model = mlflow.lightgbm.load_model(model_uri=model_uri)
+    model_version = client.get_model_version(model_name, version)
+    validation_rmse = client.get_run(model_version.run_id).data.metrics.get('val_rmse')
 
     model_path = models_dir / 'champion_model.joblib'
     joblib.dump(model, model_path)
@@ -48,6 +51,8 @@ def export_champion() -> str:
             'clip_rul': config.get('clip_rul', 125),
             'min_cycles_required': config.get('min_cycles_required', 30),
             'alert_threshold': config.get('alert_threshold', 30),
+            'validation_rmse': validation_rmse,
+            'evaluation_split': 'One held-out fold from 3-fold GroupKFold split by engine.',
         }, file)
     return str(model_path)
 

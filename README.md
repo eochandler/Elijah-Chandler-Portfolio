@@ -15,7 +15,11 @@ flowchart LR
 
 ## Current status
 
-The API and Docker deployment use the exported serving bundle in `models/`. The bundle is tracked in this repository so a hosted Docker build has the model and metadata it needs at startup.
+The public API and Docker deployment use the exported serving bundle in `models/`. The bundle is tracked in this repository so the hosted container has the model and metadata it needs at startup.
+
+## Validation results
+
+On one held-out engine-group fold from the local 3-fold GroupKFold split, the LightGBM model achieved an RMSE of **10.49 cycles**. For comparison, the naive baseline achieved **41.66 cycles** and Ridge regression achieved **16.56 cycles** on that same fold. This is a validation result, not a score on the official FD001 test set or an average across all three folds.
 
 ## Quickstart
 
@@ -43,16 +47,19 @@ curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -
 
 ## Limitations
 
-- The system uses simulated NASA data rather than real aircraft telemetry.
+- NASA C-MAPSS is simulated engine telemetry, not operational aircraft data.
 - FD001 is a single-fault, single-condition dataset and does not represent all maintenance scenarios.
-- There is no real world sensor drift, so drift handling is still a production concern.
-- Real deployment would require monitoring, retraining, and stricter governance.
+- The alert is currently triggered by a fixed 30-cycle RUL threshold; it is not cost-optimized.
+- Weibull comparison models and prediction intervals are not implemented.
+- Real-world sensor drift, monitoring, retraining, and stricter governance are outside this demo's scope.
 
 ## Live demo
 
 **Public API documentation:** [elijah-chandler-portfolio.onrender.com/docs](https://elijah-chandler-portfolio.onrender.com/docs)
 
 The live FastAPI docs let you inspect the endpoints and try requests interactively. Health check: [`/health`](https://elijah-chandler-portfolio.onrender.com/health).
+
+The service runs on Render's free instance. After 15 minutes without traffic it may spin down; the first request afterward can take about a minute to wake it up. See [Render's free instance limitations](https://render.com/docs/free).
 
 To run the service locally:
 
